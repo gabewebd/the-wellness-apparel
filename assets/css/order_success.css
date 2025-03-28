@@ -1,0 +1,64 @@
+.order-success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px); /* Subtract navbar height */
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.order-success-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.order-success-card h1 {
+    color: #df7645;
+    margin-bottom: 20px;
+    font-family: 'Alice', serif;
+}
+
+.order-details {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.order-details p {
+    margin: 10px 0;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.order-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: 'Alice', serif;
+}
+
+.btn-primary {
+    background-color: #df7645;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
