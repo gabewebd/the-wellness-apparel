@@ -21,7 +21,7 @@ $stmt->close();
 // If there are pending orders, prevent deletion
 if ($pending_orders > 0) {
     echo "<script>
-            alert('You cannot delete your account while you have pending orders.');
+            alert('You cannot delete your account while you have pending or shipped orders.');
             window.location.href = 'order-history.php';
           </script>";
     exit();
