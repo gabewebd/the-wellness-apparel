@@ -1,0 +1,124 @@
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+}
+
+.order-details-container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.order-summary {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.order-info, .shipping-info {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.order-items table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-items th, .order-items td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.order-actions {
+    text-align: center;
+    padding: 0 15px; /* Add some padding to prevent button from touching edges */
+}
+
+@media screen and (max-width: 768px) {
+    .order-details-container {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .order-items table {
+        font-size: 0.9em;
+    }
+
+    .order-items th, .order-items td {
+        padding: 8px;
+    }
+
+    /* Make table more readable on small screens */
+    .order-items table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    /* Responsive table approach */
+    @media screen and (max-width: 480px) {
+        .order-items table, 
+        .order-items tbody, 
+        .order-items tr, 
+        .order-items td {
+            display: block;
+        }
+
+        .order-items thead {
+            display: none;
+        }
+
+        .order-items tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .order-items td {
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            position: relative;
+        }
+
+        .order-items td::before {
+            content: attr(data-label);
+            float: left;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .order-items td:last-child {
+            border-bottom: none;
+        }
+    }
+}
