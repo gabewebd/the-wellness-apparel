@@ -31,7 +31,7 @@ try {
 
     if ($pending_orders > 0) {
         echo "<script>
-                alert('User has pending orders and cannot be deleted.');
+                alert('User has pending or shipped orders and cannot be deleted.');
                 window.location.href = 'users.php';
               </script>";
         exit();
