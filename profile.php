@@ -3,7 +3,7 @@ require 'includes/db.php';
 require 'includes/navbar.php';
 
 // Ensure user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1)  {
     header("Location: login.php");
     exit();
 }

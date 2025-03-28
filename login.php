@@ -4,7 +4,7 @@ require 'includes/navbar.php';
 
 // Redirect logged-in admins to admin panel
 if (isset($_SESSION['admin_id'])) {
-    header('Location: admin/send-notifications.php');
+    header('Location: admin/dashboard.php');
     exit();
 }
 

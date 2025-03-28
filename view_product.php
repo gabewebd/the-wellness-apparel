@@ -2,12 +2,11 @@
 require 'includes/db.php';
 require 'includes/navbar.php';
 
-// Allow access only if the user has logged in
-// if (isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
-
+// Allow access only if the user is an admin
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+    header("Location: ../index.php"); // Redirect to home page if not an admin
+    exit();
+}
 
 // Check if the product ID is provided in the URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -91,7 +90,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
             <div class="product-image">
                 <?php if (!empty($product['images'])): ?>
-                    <img src="uploads/products/<?php echo htmlspecialchars($product['images']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                    <img src="../uploads/products/<?php echo htmlspecialchars($product['images']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
                 <?php else: ?>
                     <div class="no-image">No Image</div>
                 <?php endif; ?>
@@ -106,10 +105,49 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 <p><strong>Product ID:</strong> <?php echo htmlspecialchars($product['id']); ?></p>
             </div>
             <div class="product-actions">
-                <a href="add-to-cart.php?id=<?php echo $product['id']; ?>" class="btn btn-edit">Add to cart</a>
-                <a href="shop.php" class="btn btn-back">Back to Products</a>
+                <a href="edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-edit">Edit</a>
+                <a href="delete_product.php" class="btn btn-delete" data-id="<?php echo $product['id']; ?>">Delete</a>
+                <a href="products.php" class="btn btn-back">Back to Products</a>
             </div>
         </div>
     </div>
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete this product?</p>
+            <div class="modal-actions">
+                <button id="confirmDelete" class="btn btn-confirm-delete">Delete</button>
+                <button id="cancelDelete" class="btn btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            const deleteModal = document.getElementById('deleteModal');
+            const confirmDeleteBtn = document.getElementById('confirmDelete');
+            const cancelDeleteBtn = document.getElementById('cancelDelete');
+            let productToDelete = null;
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    productToDelete = this.getAttribute('data-id');
+                    deleteModal.style.display = 'flex';
+                });
+            });
+
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (productToDelete) {
+                    window.location.href = `delete_product.php?id=${productToDelete}`;
+                }
+            });
+
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteModal.style.display = 'none';
+                productToDelete = null;
+            });
+        });
+    </script>
 </body>
 </html>

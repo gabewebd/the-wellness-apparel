@@ -1,85 +1,65 @@
 <?php
-require_once 'includes/db.php';
-require 'includes/navbar.php';
+session_start();
+require 'includes/db.php'; // Use admin includes
+require 'includes/navbar.php'; // Use admin navbar
 
-// Ensure user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+// Ensure user is admin
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+    header('Location: ../login.php'); // Redirect to main login if not admin
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
-$notifications_received = [];
-$notifications_sent = [];
-$user_orders = [];
+$admin_id = $_SESSION['user_id']; // Or maybe there's a generic admin concept?
+$user_notifications = [];
 $error_message = '';
-$success_message = '';
 
-// Fetch Received Notifications (limit 5 for display)
+// Fetch Notifications sent BY users (recipient_id is NULL or specific admin ID if used)
 try {
-    // Fetch messages where the user is the recipient (sent by admin)
-    $query_received = "SELECT n.*, u_sender.username AS sender_username
-                       FROM notifications n
-                       JOIN users u_sender ON n.sender_id = u_sender.id
-                       WHERE n.recipient_id = ? AND n.sender_type = 'admin' AND n.status != 'archived'
-                       ORDER BY n.created_at DESC LIMIT 5";
-    $stmt_received = $conn->prepare($query_received);
-    if ($stmt_received) {
-        $stmt_received->bind_param("i", $user_id);
-        $stmt_received->execute();
-        $result_received = $stmt_received->get_result();
-        $notifications_received = $result_received->fetch_all(MYSQLI_ASSOC);
-        $stmt_received->close();
+    // *** The only change is ASC to DESC in the line below ***
+    $query = "SELECT n.*, u.username AS sender_username, o.id AS order_display_id, o.status AS order_status
+              FROM notifications n
+              JOIN users u ON n.sender_id = u.id
+              LEFT JOIN orders o ON n.order_id = o.id
+              WHERE n.sender_type = 'user' AND n.status = 'unread' -- Show only unread user messages
+              -- AND (n.recipient_id IS NULL OR n.recipient_id = ?) -- Add this if messages can be directed to specific admins
+              ORDER BY n.created_at DESC"; // Show newest unread first (CHANGED FROM ASC)
+    $stmt = $conn->prepare($query);
+    if ($stmt) {
+        // If using recipient_id for admins, bind it here: $stmt->bind_param("i", $admin_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user_notifications = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
     } else {
-        throw new Exception("Prepare failed (received): " . $conn->error);
+        throw new Exception("Prepare failed: " . $conn->error);
     }
-
-    // Fetch Sent Notifications (limit 5 for display)
-    $query_sent = "SELECT n.*, o.id AS order_display_id
-                   FROM notifications n
-                   LEFT JOIN orders o ON n.order_id = o.id
-                   WHERE n.sender_id = ? AND n.sender_type = 'user' AND n.status != 'archived'
-                   ORDER BY n.created_at DESC LIMIT 5";
-    $stmt_sent = $conn->prepare($query_sent);
-     if ($stmt_sent) {
-        $stmt_sent->bind_param("i", $user_id);
-        $stmt_sent->execute();
-        $result_sent = $stmt_sent->get_result();
-        $notifications_sent = $result_sent->fetch_all(MYSQLI_ASSOC);
-        $stmt_sent->close();
-    } else {
-        throw new Exception("Prepare failed (sent): " . $conn->error);
-    }
-
-    // Fetch User's Recent Orders for dropdown (excluding 'Delivered' and 'Cancelled')
-    $user_orders = []; // Initialize
-    // *** MODIFIED QUERY: Added "AND status NOT IN ('Delivered', 'Cancelled')" ***
-    $query_orders = "SELECT id FROM orders WHERE user_id = ? AND status NOT IN ('Delivered', 'Cancelled') ORDER BY created_at DESC LIMIT 10";
-    $stmt_orders = $conn->prepare($query_orders);
-    if ($stmt_orders) {
-        $stmt_orders->bind_param("i", $user_id);
-        $stmt_orders->execute();
-        $result_orders = $stmt_orders->get_result();
-        $user_orders = $result_orders->fetch_all(MYSQLI_ASSOC);
-        $stmt_orders->close();
-    } else {
-         throw new Exception("Prepare failed (orders): " . $conn->error);
-    }
-
 } catch (Exception $e) {
-    error_log("Error fetching notifications/orders: " . $e->getMessage());
-    $error_message = "Could not load messages or orders at this time.";
+    error_log("Admin: Error fetching user notifications: " . $e->getMessage());
+    $error_message = "Could not load user messages.";
 }
 
-// Handle Message Sending Feedback (from process_user_notification.php)
-if (isset($_SESSION['notification_error'])) {
-    $error_message = $_SESSION['notification_error'];
-    unset($_SESSION['notification_error']);
+// Handle marking as read (example using GET param for simplicity)
+if (isset($_GET['mark_read']) && filter_var($_GET['mark_read'], FILTER_VALIDATE_INT)) {
+    $notif_id_to_read = (int)$_GET['mark_read'];
+    try {
+        $update_stmt = $conn->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND sender_type = 'user'");
+        // Optional: Add recipient check: AND (recipient_id IS NULL OR recipient_id = ?) -> bind $admin_id
+        if ($update_stmt) {
+            $update_stmt->bind_param("i", $notif_id_to_read);
+            $update_stmt->execute();
+            $update_stmt->close();
+            // Redirect to remove GET param
+            header('Location: notifications.php');
+            exit();
+        } else {
+             throw new Exception("Prepare failed (mark read): " . $conn->error);
+        }
+    } catch (Exception $e) {
+        error_log("Admin: Error marking notification read: " . $e->getMessage());
+        $error_message = "Could not update message status.";
+    }
 }
-if (isset($_SESSION['notification_success'])) {
-    $success_message = $_SESSION['notification_success'];
-    unset($_SESSION['notification_success']);
-}
+
 
 ?>
 
@@ -88,253 +68,108 @@ if (isset($_SESSION['notification_success'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications | The Wellness Apparel</title>
-    <link rel="stylesheet" href="assets/css/notifications.css">
-    <style>
-    /* Typography and Color Palette */
-    :root {
-        --primary-color: #2c4e71;
-        --secondary-color: #1a2e44;
-        --background-light: #f8f9fa;
-        --text-dark: #333;
-        --text-muted: #6c757d;
-        --border-color: #ced4da;
-    }
-
-    /* Responsive Base Styles */
-    .notifications-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 1.5rem;
-        font-family: 'Arial', sans-serif;
-    }
-
-    .notifications-container h2 {
-        color: var(--primary-color);
-        border-bottom: 2px solid var(--primary-color);
-        padding-bottom: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Message Form Styling */
-    .message-form {
-        background-color: var(--background-light);
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        margin-bottom: 2rem;
-    }
-
-    .message-form h3 {
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-    }
-
-    .message-form label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-
-    .message-form select, 
-    .message-form textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-
-    .message-form textarea {
-        min-height: 120px;
-        resize: vertical;
-        line-height: 1.5;
-    }
-
-    .message-form button {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-
-    .message-form button:hover {
-        background-color: var(--secondary-color);
-    }
-
-    /* Notification Sections */
-    .notifications-section {
-        margin-bottom: 2rem;
-    }
-
-    .notifications-section h3 {
-        color: var(--primary-color);
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Notification Cards */
-    .notification {
-        background-color: white;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    .notification:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-    }
-
-    .notification.received {
-        border-left: 4px solid #ffc107;
-    }
-
-    .notification.sent {
-        border-left: 4px solid #28a745;
-    }
-
-    .notification strong {
-        color: var(--text-dark);
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .notification p {
-        color: var(--text-muted);
-        line-height: 1.6;
-    }
-
-    .notification .timestamp {
-        display: block;
-        text-align: right;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-    }
-
-    /* Status and Error Messages */
-    .error, .success {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-        border-radius: 4px;
-    }
-
-    .error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-
-    .success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 600px) {
-        .notifications-container {
-            padding: 1rem;
-        }
-
-        .message-form {
-            padding: 1rem;
-        }
-    }
-</style>
+    <title>User Messages | Admin Panel</title>
+    <link rel="stylesheet" href="assets/css/admin.css"> <link rel="stylesheet" href="assets/css/orders.css"> <style>
+        .user-messages-container { max-width: 1000px; margin: 20px auto; }
+        .notification-card { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .notification-header { background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+        .notification-body { padding: 15px; }
+        .notification-body p { margin-top: 0; white-space: pre-wrap; } /* Preserve line breaks */
+        .notification-body strong { color: #333; }
+        .notification-actions { padding: 10px 15px; border-top: 1px solid #eee; background-color: #fdfdfd; display: flex; gap: 10px; align-items: center; }
+        .notification-actions form { margin-bottom: 0; }
+         .notification-actions button, .notification-actions a { padding: 6px 12px; font-size: 0.85em; cursor: pointer; border-radius: 4px; text-decoration: none; }
+         .action-button-group { display: flex; gap: 5px; margin-left: auto; } /* Group order actions */
+        .mark-read-link { color: #007bff; }
+        .error { color: red; background-color: #fee; padding: 10px; margin-bottom: 15px; border: 1px solid red; border-radius: 4px; }
+        /* Inherit status colors from orders.css or redefine */
+        .status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin-left: 10px; }
+        /* Add specific styles for order statuses if needed */
+        .status.pending { background-color: #ffc107; color: #333; }
+        .status.shipped { background-color: #17a2b8; color: white; }
+        .status.delivered { background-color: #28a745; color: white; }
+        .status.cancelled { background-color: #dc3545; color: white; }
+    </style>
 </head>
 <body>
 
-    <main class="notifications-container">
-        <h2>Contact Admin / Notifications</h2>
+    <main class="user-messages-container">
+        <h1>Incoming User Messages (Unread)</h1>
 
         <?php if ($error_message): ?><p class="error"><?= htmlspecialchars($error_message) ?></p><?php endif; ?>
-        <?php if ($success_message): ?><p class="success"><?= htmlspecialchars($success_message) ?></p><?php endif; ?>
 
-        <div class="message-form">
-            <h3>Send a Message to Admin</h3>
-            <form action="process_user_notification.php" method="POST">
-                <label for="order_id">Regarding Order ID (Optional):</label>
-                <select name="order_id" id="order_id">
-                    <option value="">-- General Inquiry --</option>
-                    <?php foreach ($user_orders as $order): ?>
-                        <option value="<?= $order['id'] ?>">Order #<?= $order['id'] ?></option>
-                    <?php endforeach; ?>
-                    <?php if (empty($user_orders)): ?>
-                        <option value="" disabled>No recent actionable orders found</option>
-                    <?php endif; ?>
-                </select>
-
-                <label for="message">Your Message:</label>
-                <textarea name="message" id="message" required placeholder="Type your message here..."></textarea>
-
-                <label for="request_action">Request Action (Optional):</label>
-                <select name="request_action" id="request_action">
-                    <option value="">-- No Action Requested --</option>
-                    <option value="ship">Request Shipping Update</option>
-                    <option value="deliver">Request Delivery Update</option>
-                    <option value="cancel">Request Order Cancellation</option>
-                </select>
-
-                <button type="submit">Send Message</button>
-            </form>
-        </div>
-
-        <div class="notifications-section">
-            <h3></h3>
-            <div class="notifications-list">
-                <?php if (empty($notifications_received)): ?>
- 
-                <?php else: ?>
-                    <?php foreach ($notifications_received as $notif): ?>
-                        <div class="notification received">
-                            <strong>From: Admin (<?= htmlspecialchars($notif['sender_username']) ?>)</strong>
-                            <p><?= nl2br(htmlspecialchars($notif['message'])); ?></p>
-                            <span class="timestamp"><?= date("F j, Y – g:i A", strtotime($notif['created_at'])); ?></span>
-                            </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
-
-         <div class="notifications-section">
-            <h3>Sent Messages (Last 5)</h3>
-            <div class="notifications-list">
-                <?php if (empty($notifications_sent)): ?>
-                    <p>You haven't sent any messages.</p>
-                <?php else: ?>
-                    <?php foreach ($notifications_sent as $notif): ?>
-                        <div class="notification sent">
-                            <strong>To: Admin</strong>
-                             <?php if (!empty($notif['order_id'])): ?>
-                                <small>(Regarding Order: #<?= htmlspecialchars($notif['order_display_id'] ?? $notif['order_id']) ?>)</small>
-                            <?php endif; ?>
-                            <?php if (!empty($notif['request_action'])): ?>
-                                <small>[Action Requested: <?= ucfirst(htmlspecialchars($notif['request_action'])) ?>]</small>
-                            <?php endif; ?>
-                            <p><?= nl2br(htmlspecialchars($notif['message'])); ?></p>
-                            <span class="timestamp"><?= date("F j, Y – g:i A", strtotime($notif['created_at'])); ?></span>
-                             <small>(Status: <?= ucfirst(htmlspecialchars($notif['status'])) ?>)</small>
+        <div class="notifications-list">
+            <?php if (empty($user_notifications)): ?>
+                <p>No unread messages from users.</p>
+            <?php else: ?>
+                <?php foreach ($user_notifications as $notif): ?>
+                    <div class="notification-card">
+                        <div class="notification-header">
+                            <span><strong>From:</strong> <?= htmlspecialchars($notif['sender_username']) ?> (ID: <?= $notif['sender_id'] ?>)</span>
+                            <span class="timestamp"><?= date("M j, Y g:i A", strtotime($notif['created_at'])) ?></span>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                        <div class="notification-body">
+                             <?php if (!empty($notif['order_id'])): ?>
+                                <p><strong>Regarding Order:</strong> #<?= htmlspecialchars($notif['order_display_id'] ?? $notif['order_id']) ?>
+                                   <?php if (!empty($notif['order_status'])): ?>
+                                       <span class="status <?= strtolower(htmlspecialchars($notif['order_status'])) ?>">Current Status: <?= htmlspecialchars($notif['order_status']) ?></span>
+                                   <?php endif; ?>
+                                </p>
+                            <?php endif; ?>
+                             <?php if (!empty($notif['request_action'])): ?>
+                                <p><strong>Action Requested:</strong> <span style="color: #dc3545; font-weight: bold;"><?= ucfirst(htmlspecialchars($notif['request_action'])) ?></span></p>
+                            <?php endif; ?>
+                             <p><strong>Message:</strong></p>
+                            <blockquote><?= nl2br(htmlspecialchars($notif['message'])); ?></blockquote>
+                        </div>
+                        <div class="notification-actions">
+                            <a href="?mark_read=<?= $notif['id'] ?>" class="mark-read-link">Mark as Read</a>
+
+                            <?php if (!empty($notif['order_id'])): ?>
+                                 <div class="action-button-group">
+                                     <?php
+                                         $current_status = $notif['order_status'] ?? null;
+                                         $order_id_for_action = $notif['order_id'];
+                                     ?>
+                                     <?php if ($current_status == 'Pending'): ?>
+                                         <form action="orders.php" method="POST" style="display: inline;">
+                                             <input type="hidden" name="order_id" value="<?= $order_id_for_action ?>">
+                                             <input type="hidden" name="status" value="Shipped">
+                                             <button type="submit" name="update_order" class="btn-ship">Ship</button>
+                                         </form>
+                                         <form action="orders.php" method="POST" style="display: inline;">
+                                             <input type="hidden" name="order_id" value="<?= $order_id_for_action ?>">
+                                             <input type="hidden" name="status" value="Delivered">
+                                             <button type="submit" name="update_order" class="btn-deliver">Deliver</button>
+                                         </form>
+                                         <form action="orders.php" method="POST" style="display: inline;">
+                                             <input type="hidden" name="order_id" value="<?= $order_id_for_action ?>">
+                                             <button type="submit" name="cancel_order" class="btn-cancel">Cancel</button>
+                                         </form>
+                                     <?php elseif ($current_status == 'Shipped'): ?>
+                                         <form action="orders.php" method="POST" style="display: inline;">
+                                             <input type="hidden" name="order_id" value="<?= $order_id_for_action ?>">
+                                             <input type="hidden" name="status" value="Delivered">
+                                             <button type="submit" name="update_order" class="btn-deliver">Deliver</button>
+                                         </form>
+                                          <form action="orders.php" method="POST" style="display: inline;">
+                                             <input type="hidden" name="order_id" value="<?= $order_id_for_action ?>">
+                                             <button type="submit" name="cancel_order" class="btn-cancel">Cancel</button>
+                                         </form>
+                                      <?php elseif ($current_status == 'Delivered' || $current_status == 'Cancelled'): ?>
+                                            <span>(Order <?= htmlspecialchars($current_status) // Added htmlspecialchars ?>)</span>
+                                      <?php else: // Added fallback for unknown or NULL status ?>
+                                            <span>(Order status unknown)</span>
+                                      <?php endif; ?>
+                                 </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
 
         </main>
-
-    <?php include 'includes/footer.php'; ?>
-    <script src="assets/js/main.js"></script>
 
 </body>
 </html>
