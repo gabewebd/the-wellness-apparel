@@ -121,44 +121,112 @@ $result = $stmt->get_result();
             background-color: #f8f9fa;
             border-radius: 8px;
         }
+            
+       .view-order-btn {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9em;
+    	}
+    
+    .view-order-btn:hover {
+        background-color: #e0e0e0;
+    }
 
         @media (max-width: 768px) {
             .order-history-container {
                 margin: 20px 10px;
                 padding: 15px;
+                width: auto;
+                max-width: 100%;
+            }
+
+            /* Card-based layout for mobile */
+            .order-table {
+                display: block;
+                width: 100%;
+                overflow-x: hidden;
             }
 
             .order-table thead {
-                display: none;
+                display: none; /* Hide table headers on mobile */
             }
 
-            .order-table, .order-table tbody, .order-table tr, .order-table td {
+            .order-table tbody {
                 display: block;
                 width: 100%;
             }
 
             .order-table tr {
-                margin-bottom: 15px;
+                display: block;
+                width: 100%;
+                margin-bottom: 20px;
                 border: 1px solid #e0e0e0;
                 border-radius: 8px;
                 overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             }
 
             .order-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                padding: 12px 15px;
                 text-align: right;
-                padding: 10px 15px;
                 border-bottom: 1px solid #e0e0e0;
+                box-sizing: border-box;
             }
 
             .order-table td::before {
                 content: attr(data-label);
-                float: left;
-                font-weight: bold;
+                font-weight: 600;
                 text-transform: uppercase;
+                font-size: 0.85em;
+                color: #666;
+                text-align: left;
+                margin-right: 10px;
             }
 
             .order-table td:last-child {
                 border-bottom: none;
+            }
+
+            /* Make sure the status badges remain properly formatted */
+            .status {
+                float: right;
+                margin-left: auto;
+            }
+
+            /* Style the view order button for better mobile experience */
+            .view-order-btn {
+                display: inline-block;
+                padding: 6px 12px;
+                background-color: #f0f0f0;
+                border-radius: 4px;
+                color: #333;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.9em;
+            }
+
+            .view-order-btn:hover {
+                background-color: #e0e0e0;
+            }
+        }
+
+        /* Additional styling for very small screens */
+        @media (max-width: 400px) {
+            .order-history-container {
+                padding: 10px;
+            }
+
+            .order-table td {
+                padding: 10px;
             }
         }
     </style>
