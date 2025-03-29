@@ -1,4 +1,4 @@
-
+/* Basic Font and Element Styling */
 h1,
 h2,
 h3,
@@ -8,7 +8,6 @@ h6 {
     font-family: 'Quicksand', sans-serif;
 }
 
-
 body {
     font-family: 'Alice', sans-serif;
     background-color: #f4f4f4;
@@ -16,6 +15,9 @@ body {
     padding: 0;
     color: #333;
     line-height: 1.6;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 h2 {
@@ -26,13 +28,18 @@ h2 {
     font-weight: bold;
     border-bottom: 2px solid #17a2b8;
     padding-bottom: 10px;
-    
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .other-container {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-items: center;
-
+    width: 100%;
+    max-width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
 .checkout-container {
@@ -42,13 +49,14 @@ h2 {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    max-width: 1200px; /* Limit the maximum width */
-    width: 90%; /* Take up 90% of the container width */
-    margin: 0 auto; /* Center the container */
+    padding: 20px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-
+/* Section styling */
 .cart-summary, 
 .address-selection, 
 .delivery-options, 
@@ -58,6 +66,8 @@ h2 {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cart-summary h3, 
@@ -71,6 +81,7 @@ h2 {
     margin-bottom: 15px;
 }
 
+/* Cart item styling */
 .cart-item {
     display: flex;
     align-items: center;
@@ -79,6 +90,8 @@ h2 {
     background-color: white;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cart-item img {
@@ -89,20 +102,25 @@ h2 {
     border-radius: 5px;
 }
 
-/* .address-selection {
-    width: 90%;
-} */
+.cart-item div {
+    flex-grow: 1;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
 
+/* Form element styling */
 .address-selection select,
 .address-selection input[type="text"],
 .payment-section input[type="radio"],
 .delivery-options input[type="radio"] {
-    width: 70%;
+    width: 100%;
+    max-width: 70%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
-    border-radius:
-     4px;   
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .delivery-options label, 
@@ -110,19 +128,22 @@ h2 {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .delivery-options label input[type="radio"], 
 .payment-section label input[type="radio"] {
     margin-right: 10px;
-    width: auto; /* Reset width to default */
+    width: auto;
 }
 
+/* Divider styling */
 .or-divider {
     text-align: center;
     margin: 10px 0;
     color: #888;
     position: relative;
+    width: 100%;
 }
 
 .or-divider::before,
@@ -143,15 +164,25 @@ h2 {
     right: 0;
 }
 
+/* Checkout summary styling */
 .checkout-summary {
     grid-column: 1 / -1;
-    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding is included in width */
+    padding: 20px;
 }
 
 .checkout-summary .button-group {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; /* Center the buttons */
     gap: 10px;
+    flex-wrap: wrap;
+    width: 100%; /* Control the width */
+    max-width: 100%; /* Prevent overflow */
+    box-sizing: border-box;
 }
 
 .checkout-summary button {
@@ -177,6 +208,17 @@ h2 {
     display: inline-block;
     transition: background-color 0.3s ease;
 }
+.back-to-cart {
+    text-align: center;
+}
+
+.checkout-summary button,
+.checkout-summary .back-to-cart {
+    box-sizing: border-box; /* Critical to include padding in width calculation */
+    max-width: 45%; /* Prevent buttons from being too wide */
+    white-space: nowrap; /* Prevent text wrapping */
+    padding: 12px 20px; /* Slightly reduce padding if needed */
+}
 
 .checkout-summary button:hover {
     background-color: #138496;
@@ -186,6 +228,7 @@ h2 {
     background-color: #545b62;
 }
 
+/* Error message styling */
 .error-message {
     background-color: #f8d7da;
     color: #721c24;
@@ -193,10 +236,68 @@ h2 {
     border-radius: 5px;
     margin-bottom: 20px;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
+/* Media Queries */
 @media (max-width: 768px) {
     .checkout-container {
         grid-template-columns: 1fr;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    h2 {
+        font-size: 2em;
+        padding: 0 10px 10px;
+    }
+    
+    .checkout-summary .button-group {
+        justify-content: center;
+    }
+    
+    .address-selection select,
+    .address-selection input[type="text"] {
+        max-width: 100%;
+    }
+    
+    .cart-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cart-item img {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    h2 {
+        font-size: 1.7em;
+    }
+    
+    .checkout-container {
+        padding: 10px;
+    }
+    
+    .cart-summary, 
+    .address-selection, 
+    .delivery-options, 
+    .payment-section, 
+    .checkout-summary {
+        padding: 15px;
+    }
+    
+    .checkout-summary button,
+    .checkout-summary .back-to-cart {
+        max-width: 100%; /* Full width on small screens */
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .checkout-summary .button-group {
+        flex-direction: column;
     }
 }
