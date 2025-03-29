@@ -24,6 +24,10 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $products_per_page, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
+if (isset($_SESSION['shop_error'])) {
+    echo "<script>alert('" . $_SESSION['shop_error'] . "');</script>";
+    unset($_SESSION['shop_error']); // Clear message after displaying
+}
 ?>
 
 <!DOCTYPE html>
