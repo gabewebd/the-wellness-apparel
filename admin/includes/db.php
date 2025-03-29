@@ -1,14 +1,14 @@
 <?php
-$host = "fdb1029.awardspace.net";
-$dbname = "4611173_wellnessapparel";
-$username = "4611173_wellnessapparel";
-$password = "DWEB2025_wellness_apparel";
+$host = 'localhost'; // Your database host
+$user = 'root';      // Your database username
+$pass = '';          // Your database password
+$db = '4611173_wellnessapparel'; // Your database name
 
-// Create MySQLi connection
-$conn = new mysqli($host, $username, $password, $dbname);
+$conn = new mysqli($host, $user, $pass, $db);
 
 // Check connection
 if ($conn->connect_error) {
-    die("❌ Database connection failed: " . $conn->connect_error);
-}   
+    die("Connection failed: " . $conn->connect_error);
+}
 ?>
+
