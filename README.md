@@ -39,13 +39,11 @@ This is the easiest way to view and evaluate the application, because it is curr
 
 1. Navigate to *https://github.com/gabewebd/the-wellness-apparel* and download as a ZIP repository
 
-2. Drag the folder into your C://xampp/htdocs/
+2. Extract and drag the folder into your C:\xampp\htdocs\
 
 
 
 3. Initialize the database (choose one of the two methods):
-
-    Make sure APACHE and MySQL is running in your XAMPP control panel
 
 	**Method A: Import the provided SQL file**
 	- Open XAMPP/WAMP and make sure that the MySQL service is running.
