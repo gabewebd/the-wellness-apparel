@@ -28,7 +28,7 @@ This is the easiest way to view and evaluate the application, because it is curr
 
 1. Clone the repository:
 
-   git clone https://github.com/gabewebd/the-wellness-apparel.git
+   git clone *https://github.com/gabewebd/the-wellness-apparel.git*
    cd wellness-apparel   
 
 2. Install dependencies:
@@ -50,14 +50,14 @@ This is the easiest way to view and evaluate the application, because it is curr
 	**Method A: Import the provided SQL file**
 	- Open XAMPP/WAMP and make sure that the MySQL service is running.
 	- In your browser, navigate to *http://localhost/phpmyadmin*
-	- Create a new database named "4611173_wellnessapparel.”
+	- Create a new database named *"4611173_wellnessapparel.”*
 	- Click on that new database and select the Import tab.
 	- After that, import the SQL file from the extracted sql/4611173_wellnessapparel.sql folder.
 
 	**Method B: Create the database manually**
 	- Open XAMPP/WAMP and make sure that the MySQL service is running.
 	- In your browser, navigate to *http://localhost/phpmyadmin*
-	- Create a new database named "4611173_wellnessapparel.”
+	- Create a new database named *"4611173_wellnessapparel.”*
 	- Execute the SQL commands from the provided schema file to create the tables.
 	- If sample data was provided you will have to import it.
 
