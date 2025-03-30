@@ -106,7 +106,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             </div>
             <div class="product-actions">
                 <a href="edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-edit">Edit</a>
-                <a href="delete_product.php" class="btn btn-delete" data-id="<?php echo $product['id']; ?>">Delete</a>
+                <!-- <a href="delete_product.php" class="btn btn-delete" data-id="<?php echo $product['id']; ?>">Delete</a> -->
                 <a href="products.php" class="btn btn-back">Back to Products</a>
             </div>
         </div>
