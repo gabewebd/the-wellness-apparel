@@ -62,7 +62,7 @@ This is the easiest way to view and evaluate the application, because it is curr
 	- If sample data was provided you will have to import it.
 
  4. Run the web project:
-	Type *localhost/the-wellness-apparel/* in your browser address line. Also, you may have to change the directory if the folder was renamed in your computer.
+	Type *localhost/the-wellness-apparel-main/* in your browser address line. Also, you may have to change the directory if the folder was renamed upon download or to whichever you prefer.
 
 
 # Important Notes
