@@ -24,10 +24,12 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $products_per_page, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
+
 if (isset($_SESSION['shop_error'])) {
     echo "<script>alert('" . $_SESSION['shop_error'] . "');</script>";
     unset($_SESSION['shop_error']); // Clear message after displaying
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +45,61 @@ if (isset($_SESSION['shop_error'])) {
     <link rel="stylesheet" href="assets/css/shop.css">
     <script src="assets/js/shop.js"></script>
     <style>
-        /* Existing styles remain the same */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            gap: 10px;
+        }
+
+        .pagination a, 
+        .pagination span {
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a {
+            background-color: #f8f8f8;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .pagination a:hover {
+            background-color: #ebebeb;
+            border-color: #ccc;
+        }
+
+        .pagination span.current {
+            background-color: #4a4a4a;
+            color: white;
+            border: 1px solid #4a4a4a;
+        }
+
+        .pagination span.disabled {
+            color: #999;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            cursor: not-allowed;
+        }
+
+        /* For mobile responsiveness */
+        @media (max-width: 768px) {
+            .pagination {
+                flex-wrap: wrap;
+            }
+
+            .pagination a, 
+            .pagination span {
+                padding: 6px 12px;
+                margin: 3px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
