@@ -56,7 +56,7 @@ This is the easiest way to view and evaluate the application, because it is curr
 
 	**Method B: Create the database manually**
 	- Open XAMPP/WAMP and make sure that the MySQL service is running.
-	- In your browser, navigate to http://localhost/phpmyadmin
+	- In your browser, navigate to *http://localhost/phpmyadmin*
 	- Create a new database named "4611173_wellnessapparel.”
 	- Execute the SQL commands from the provided schema file to create the tables.
 	- If sample data was provided you will have to import it.
