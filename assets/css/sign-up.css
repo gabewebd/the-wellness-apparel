@@ -96,3 +96,53 @@
     color: red;
     font-size: 0.9rem;
 }
+
+/* Add these media queries to your sign-up.css file */
+
+/* General mobile adjustments */
+@media (max-width: 768px) {
+    .background {
+        padding-left: 5%; /* Reduce left padding on mobile */
+        padding-right: 5%; /* Reduce right padding on mobile */
+    }
+    
+    .signup-container {
+        width: 90%; /* Make container more responsive */
+        max-width: 460px; /* Keep max width */
+        padding: 20px 25px; /* Balanced padding */
+        margin: 80px auto; /* Reduced top/bottom margin on mobile */
+    }
+
+}
+
+
+/* Specific fix for the input fields on mobile */
+@media (max-width: 480px) {
+    .input-group input {
+        width: 92%; /* Adjust input width for mobile */
+        padding: 12px 12px; /* Balanced horizontal padding */
+    }
+    
+    /* Add more right padding to ensure text doesn't touch the edge */
+    .signup-container {
+        padding: 20px 30px 20px 25px; /* Increase right padding */
+    }
+    
+    /* Ensure form elements stay properly contained */
+    #signup-form {
+        width: 100%;
+        padding-right: 5px; /* Extra padding on form */
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+    .input-group input {
+        width: 90%; /* Further reduce width on very small screens */
+        padding: 12px 10px; /* Balanced horizontal padding */
+    }
+    
+    .signup-container {
+        padding: 20px 35px 20px 25px; /* Even more right padding */
+    }
+}
