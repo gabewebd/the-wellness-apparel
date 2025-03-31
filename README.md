@@ -1,7 +1,7 @@
 # Submission Components
 
 This submission has the following components:
-1. Entire source code for the application
+1. Entire source code for the website
 2. SQL database schema, including sample data
 3. Instructions for setup and running the application
 4. Video Presentation
@@ -9,13 +9,13 @@ This submission has the following components:
 # The Wellness Apparel - Project Documentation
 
 Project Summary
-Since it's a web application, we cannot simply create an executable (.exe) file; it requires a web server environment to host the application.
+Since it's a website, we cannot simply create an executable (.exe) file; it requires a web server environment to host the website.
 
 # How to Use Application
 
 **Option 1: Live Demo (Recommended)**
-The application is currently live at: *http://the-wellness-apparel.onlinewebshop.net/*
-This is the easiest way to view and evaluate the application, because it is currently hosted and setup with the database and necessary configurations.
+The website is currently live at: *http://the-wellness-apparel.onlinewebshop.net/*
+This is the easiest way to view and evaluate the website, because it is currently hosted and setup with the database and necessary configurations.
 
 **Option 2: Local Setup with Source Code**
 
@@ -70,13 +70,13 @@ This is the easiest way to view and evaluate the application, because it is curr
 
 
 # Important Notes
-Wellness Apparel is a web app, not a normal desktop application.
+Wellness Apparel is a website, not a normal desktop application.
 - You will not be able to compile this project in an .exe file that can be used independently.
 - The application must have a web server environment and database set up to run the app normally and be fully usable.
 - For review purposes, it is highly recommended you use the live demo (Option 1) for your evaluation as it provides the truest sense of the intended experience to the user.
 
 # Database Connection
-To work properly, the app needs to connect to a database. The online demonstration site is configured with a working database: *http://the-wellness-apparel.onlinewebshop.net/*
+To work properly, the website needs to connect to a database. The online demonstration site is configured with a working database: *http://the-wellness-apparel.onlinewebshop.net/*
 
 # If you have any questions or issues with the setup, please reach out to our members on Canvas:
 
