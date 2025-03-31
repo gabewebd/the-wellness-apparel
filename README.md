@@ -35,9 +35,15 @@ This is the easiest way to view and evaluate the application, because it is curr
 
    npm install
 
-   OR
+   **OR**
 
 1. Navigate to *https://github.com/gabewebd/the-wellness-apparel* and download as a ZIP repository
+
+2. Extract and drag the folder into your C:\xampp\htdocs\
+
+   **OR**
+
+1. Navigate to this Google Drive Link *https://drive.google.com/drive/folders/1ToHRD1TTb3t8A9CDljd7icbYOysYpzi8?usp=drive_link* and download the ZIP source code
 
 2. Extract and drag the folder into your C:\xampp\htdocs\
 
